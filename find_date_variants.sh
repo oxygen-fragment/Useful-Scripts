@@ -46,13 +46,14 @@ fi
 echo "Searching in: $search_dir"
 echo "Looking for files matching variations of: $yyyy-$mm-$dd"
 find "$search_dir" -type f \( \
-  -iname "*$yyyy$mm$dd*" -o \
-  -iname "*$yyyy-$mm-$dd*" -o \
-  -iname "*$dd-$mm-$yyyy*" -o \
-  -iname "*$dd_$mm_$yyyy*" -o \
-  -iname "*$yyyy.$mm.$dd*" -o \
-  -iname "*$dd.$mm.$yyyy*" -o \
-  -iname "*$yyyy $mm $dd*" -o \
-  -iname "*$month_short*$dd*$yyyy*" -o \
-  -iname "*$month_long*$dd*$yyyy*" \
+  -iname "*${yyyy}-${mm}-${dd}*" -o \
+  -iname "*${dd}-${mm}-${yyyy}*" -o \
+  -iname "*${yyyy}_${mm}_${dd}*" -o \
+  -iname "*${dd}_${mm}_${yyyy}*" -o \
+  -iname "*${yyyy}.${mm}.${dd}*" -o \
+  -iname "*${dd}.${mm}.${yyyy}*" -o \
+  -iname "*${yyyy} ${mm} ${dd}*" -o \
+  -iname "*${month_short}*${dd}*${yyyy}*" -o \
+  -iname "*${month_long}*${dd}*${yyyy}*" -o \
+  -iname "*${yyyy}${mm}${dd}*" \
 \)
