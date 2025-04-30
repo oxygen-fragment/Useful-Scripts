@@ -6,6 +6,10 @@ KEYS_TO_REMOVE = {
     "startLongitude",
     "endLatitude",
     "endLongitude",
+    "maxLatitude",
+    "maxLongitude",
+    "minLatitude",
+    "minLongitude",
 }
 
 def remove_geo_keys(obj):
@@ -14,11 +18,11 @@ def remove_geo_keys(obj):
     Works on nested dicts and lists.
     """
     if isinstance(obj, dict):
-        # First, remove unwanted keys at this level
+        # Remove unwanted keys at this level
         for key in list(obj.keys()):
             if key in KEYS_TO_REMOVE:
                 obj.pop(key)
-        # Then recurse into remaining values
+        # Recurse into remaining values
         for value in obj.values():
             remove_geo_keys(value)
 
@@ -27,7 +31,7 @@ def remove_geo_keys(obj):
         for item in obj:
             remove_geo_keys(item)
 
-    # primitives (str, int, etc.) are left untouched
+    # primitives are left untouched
     return obj
 
 def clean_json_file(input_path, output_path):
