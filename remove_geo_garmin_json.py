@@ -1,6 +1,6 @@
 import json
 
-# List of keys to remove
+# Keys to remove wherever they appear
 KEYS_TO_REMOVE = {
     "startLatitude",
     "startLongitude",
@@ -12,46 +12,58 @@ KEYS_TO_REMOVE = {
     "minLongitude",
 }
 
+# fieldEnum values whose entire objects should be removed from lists
+FIELD_ENUMS_TO_REMOVE = {
+    "END_LONGITUDE",
+    "END_LATITUDE",
+}
+
 def remove_geo_keys(obj):
     """
-    Recursively remove any dict entries whose key is in KEYS_TO_REMOVE.
-    Works on nested dicts and lists.
+    Recursively:
+     1) Remove any dict entries whose key is in KEYS_TO_REMOVE.
+     2) If obj is a list, drop any element that's a dict with fieldEnum in FIELD_ENUMS_TO_REMOVE.
     """
     if isinstance(obj, dict):
-        # Remove unwanted keys at this level
-        for key in list(obj.keys()):
-            if key in KEYS_TO_REMOVE:
-                obj.pop(key)
-        # Recurse into remaining values
-        for value in obj.values():
-            remove_geo_keys(value)
+        # 1) strip out unwanted keys at this level
+        for k in list(obj.keys()):
+            if k in KEYS_TO_REMOVE:
+                obj.pop(k)
+        # then recurse into all remaining values
+        for v in obj.values():
+            remove_geo_keys(v)
 
     elif isinstance(obj, list):
-        # Recurse into each item of the list
+        cleaned = []
         for item in obj:
+            # drop whole blocks with matching fieldEnum
+            if isinstance(item, dict) and item.get("fieldEnum") in FIELD_ENUMS_TO_REMOVE:
+                continue
+            # otherwise recurse
             remove_geo_keys(item)
+            cleaned.append(item)
+        # replace in-place
+        obj[:] = cleaned
 
-    # primitives are left untouched
     return obj
 
 def clean_json_file(input_path, output_path):
-    # Load the JSON data
+    # Load JSON
     with open(input_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    # Remove the geo keys
-    cleaned = remove_geo_keys(data)
+    # Clean it
+    remove_geo_keys(data)
 
-    # Write back out (pretty-printed)
+    # Write back out
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(cleaned, f, ensure_ascii=False, indent=2)
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
     import argparse
-
-    p = argparse.ArgumentParser(description="Strip lat/long fields from a JSON file")
-    p.add_argument("infile", help="Path to input JSON")
-    p.add_argument("outfile", help="Path where cleaned JSON will be written")
+    p = argparse.ArgumentParser(description="Strip geo keys & certain fieldEnum blocks from JSON")
+    p.add_argument("infile",  help="path to input .json")
+    p.add_argument("outfile", help="path to write cleaned .json")
     args = p.parse_args()
 
     clean_json_file(args.infile, args.outfile)
