@@ -3,22 +3,23 @@
 # prepare_arxiv.sh
 #
 # Automate LaTeX paper preparation for arXiv submission.
-# Usage: ./prepare_arxiv.sh /path/to/original_paper main.tex
+# Skips BibTeX if no .bib file is found.
+#
+# Usage: ./prepare_arxiv.sh /path/to/ORIGINAL_PAPER_DIR MAIN_TEX_FILENAME
+# Example: ./prepare_arxiv.sh /home/me/my_paper paper.tex
 #
 # It will:
-#  1. Copy your source into tmp/
+#  1. Copy your source into tmp_arxiv/
 #  2. Merge appendix if detected
-#  3. Tweak style files (remove "Submitted to...")
+#  3. Tweak .sty files (remove "Submitted to...")
 #  4. Flatten subdirectories (move figures to root)
-#  5. Clean up generated files and comments
-#  6. Append a \typeout line to force multiple pdflatex passes
-#  7. Compile (pdflatex → bibtex → pdflatex ×2)
-#  8. Keep only .bbl and source files; delete .bib
-#  9. Create ax.tar within tmp/
-# 10. Prompt you to double-check before arXiv upload
+#  5. Clean up generated files and strip comments
+#  6. Append a \typeout line after \end{document}
+#  7. Compile (pdflatex → [bibtex if .bib exists] → pdflatex ×2)
+#  8. Keep only .bbl and source; delete .bib
+#  9. Create ax.tar inside tmp_arxiv/
 #
-# You’ll still need to inspect the log, check the PDF, and
-# handle any manual metadata entry for arXiv. Read the “Guidance” section below.
+# You’ll still need to inspect logs, check the final PDF, and fill arXiv metadata manually.
 
 set -euo pipefail
 
@@ -46,7 +47,7 @@ if [[ ! -f "$SRC_DIR/$MAIN_TEX_NAME" ]]; then
 fi
 
 # Check for required commands
-for cmd in cp pdflatex bibtex sed tar; do
+for cmd in cp pdflatex sed tar; do
   if ! command -v "$cmd" &> /dev/null; then
     echo "🚨 ERROR: '$cmd' is required but not found in PATH."
     exit 1
@@ -80,7 +81,7 @@ if [[ -f "$APPENDIX_TEX_PATH" ]]; then
     echo "ℹ️  '\\appendix' already present in main .tex. Skipping merge."
   else
     echo "ℹ️  Found 'appendix.tex'. Appending it to main document..."
-    # Insert after \bibliography or \printbibliography if possible; otherwise before \end{document}
+    # Insert after \bibliography or \printbibliography; otherwise before \end{document}
     if grep -q '\\bibliography' "$MAIN_TEX_PATH"; then
       sed -i '/\\bibliography/ a \
 \
@@ -146,8 +147,8 @@ find "$TMP_DIR" -type f \( -iname "*.pdf" -o -iname "*.png" -o -iname "*.jpg" -o
     continue
   fi
 
-  rel="${orig#$TMP_DIR/}"          # e.g., "figures/plot1.pdf"
-  fname="$(basename "$orig")"      # e.g., "plot1.pdf"
+  rel="${orig#$TMP_DIR/}"          # e.g., "figures/plot1.png"
+  fname="$(basename "$orig")"      # e.g., "plot1.png"
   base_noext="${fname%.*}"         # e.g., "plot1"
 
   # If a file of same name already exists in root, generate a unique suffix
@@ -165,7 +166,6 @@ find "$TMP_DIR" -type f \( -iname "*.pdf" -o -iname "*.png" -o -iname "*.jpg" -o
   mv "$orig" "$TMP_DIR/$newname"
 
   # Update references in all .tex: drop directory prefix
-  # We assume references in .tex use the path without extension or with extension
   orig_noext="${rel%.*}"       # e.g., "figures/plot1"
   new_noext="${newname%.*}"    # e.g., "plot1" or "plot1_1"
   echo "     🔍 Rewriting references: '$orig_noext' → '$new_noext'"
@@ -222,10 +222,10 @@ fi
 
 ####### 9. COMPILE UNTIL REFERENCES RESOLVE #######
 
-echo -e "\n=== Step 8: Compiling (pdflatex → bibtex → pdflatex ×2) ==="
+echo -e "\n=== Step 8: Compiling (pdflatex → [bibtex if .bib exists] → pdflatex ×2) ==="
 pushd "$TMP_DIR" > /dev/null
 
-# 9.1 First pass
+# 9.1 First pdflatex pass
 echo "   🔨 Running pdflatex (1st pass)..."
 if ! pdflatex -interaction=nonstopmode "$MAIN_TEX_NAME" &> compile1.log; then
   echo "🚨 pdflatex (1st) failed. Inspect '$TMP_DIR/compile1.log'. Exiting."
@@ -233,24 +233,24 @@ if ! pdflatex -interaction=nonstopmode "$MAIN_TEX_NAME" &> compile1.log; then
   exit 1
 fi
 
-# 9.2 BibTeX
+# 9.2 Only run BibTeX if there’s a .bib file
 mainbase="${MAIN_TEX_NAME%.tex}"
-if [[ -f "${mainbase}.aux" ]]; then
-  echo "   📖 Running bibtex..."
+if [[ -f "${mainbase}.bib" ]]; then
+  echo "   📖 Running bibtex (because '${mainbase}.bib' exists)…"
   if ! bibtex "$mainbase" &> bibtex.log; then
     echo "🚨 BibTeX failed. Inspect '$TMP_DIR/bibtex.log'. Exiting."
     popd > /dev/null
     exit 1
   fi
 else
-  echo "⚠️  No .aux found; skipping bibtex. Do you use biblatex? Adjust script accordingly."
+  echo "ℹ️  No .bib file detected—skipping BibTeX."
 fi
 
 # 9.3 Second & third pdflatex passes
-echo "   🔨 Running pdflatex (2nd pass)..."
+echo "   🔨 Running pdflatex (2nd pass)…"
 pdflatex -interaction=nonstopmode "$MAIN_TEX_NAME" &> compile2.log
 
-echo "   🔨 Running pdflatex (3rd pass)..."
+echo "   🔨 Running pdflatex (3rd pass)…"
 pdflatex -interaction=nonstopmode "$MAIN_TEX_NAME" &> compile3.log
 
 echo "✔️  Compilation steps complete. Check logs if there were warnings."
@@ -269,9 +269,13 @@ find "$TMP_DIR" -type f \( \
   \) -exec rm -f {} \;
 echo "   ✔️  Removed generated files except .bbl."
 
-# Delete .bib (arXiv uses .bbl)
-find "$TMP_DIR" -type f -name "*.bib" -exec rm -f {} \;
-echo "   ✔️  Deleted .bib files; we'll rely on the .bbl."
+# Delete .bib (arXiv uses .bbl) but only if it existed
+if find "$TMP_DIR" -maxdepth 1 -type f -name "*.bib" | grep -q .; then
+  find "$TMP_DIR" -type f -name "*.bib" -exec rm -f {} \;
+  echo "   ✔️  Deleted .bib files; we'll rely on the .bbl."
+else
+  echo "ℹ️  No .bib to delete."
+fi
 
 
 ####### 11. CREATE TARBALL #######
@@ -279,8 +283,7 @@ echo "   ✔️  Deleted .bib files; we'll rely on the .bbl."
 echo -e "\n=== Step 10: Creating 'ax.tar' inside '$TMP_DIR' ==="
 pushd "$TMP_DIR" > /dev/null
 
-# Ensure only the necessary files are included: .tex, .sty/.cls/.bst, figures, .bbl, any other required source
-# We just tar everything remaining (should be correct after cleanup)
+# Just tar everything left (should be only needed .tex, .sty/.cls/.bst, figures, .bbl, etc.)
 tar -cvvf ax.tar * &> tar.log
 echo "✔️  Created 'ax.tar'. Check '$TMP_DIR/tar.log' for details (file list)."
 
@@ -293,11 +296,11 @@ echo -e "\n✅ All done! Your 'ax.tar' is ready in '$TMP_DIR/'."
 echo "   📤 Upload 'ax.tar' to arXiv.org."
 
 echo -e "\n--- IMPORTANT NEXT STEPS ---"
-echo "1) On arXiv upload page, inspect extracted file list carefully. Remove any stray files flagged as unnecessary."
+echo "1) On arXiv upload page, inspect the extracted file list. Remove any stray files flagged as unnecessary."
 echo "2) Manually check '$TMP_DIR/compile3.log' & '$TMP_DIR/compile2.log' for unresolved warnings or errors."
-echo "3) Open '$TMP_DIR/${MAIN_TEX_NAME%.tex}.pdf' (if you kept it from a prior compile) or compile locally once more to confirm appearance."
-echo "4) arXiv metadata: see guidance below on formatting Title/Authors/Abstract."
-echo "5) Remember to consult your advisor about subject-area classification—and INVITE thought: is 'cs.CR' really the best home, or should you target 'math.ST'? 🤔"
-echo "6) After you choose a submission password on arXiv, share that password with coauthors so they can update or withdraw the submission if needed."
+echo "3) Open '$TMP_DIR/${MAIN_TEX_NAME%.tex}.pdf' and verify everything looks right (figures, tables, cross‐refs)."
+echo "4) Fill out arXiv metadata forms—strip LaTeX syntax from Title/Authors/Abstract (see guidance in original script)."
+echo "5) Consult your advisor about the best subject‐area classification. Is 'cs.CR' the right spot, or is 'math.ST' more fitting? 🤔"
+echo "6) After you set a submission password on arXiv, share it with coauthors so they can update or withdraw if needed."
 
-echo -e "\n🎉 Good luck with your arXiv submission! 🎉\n"
+echo -e "\n🎉 Good luck with your arXiv submission—now with conditional BibTeX! 🎉\n"
