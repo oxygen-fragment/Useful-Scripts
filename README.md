@@ -1,64 +1,130 @@
 # 🛠️ Useful Scripts
 
-Welcome to **Useful-Scripts** — a growing collection of handy command-line tools for daily tasks, file searching, automation, and more. Each script is designed to solve a specific problem, save time, or simplify your workflow.
-
-Feel free to contribute or customize them to suit your setup.
+Welcome to **Useful-Scripts** — a curated collection of command-line tools organized by functionality. Each script is designed to solve specific problems, save time, and simplify workflows across different platforms.
 
 ---
 
-## 📂 How to Use
+## 🚀 Quick Start
 
-All scripts are Bash-based. To use any script:
-
-1. Clone this repository or copy the script you need.
-2. Make it executable:
-   ```bash
-   chmod +x find_date_variants.sh
-   ```
-
-(or simply run `bash find_date_variants.sh`)
-
-3. Run it with the appropriate arguments (see below for examples).
-
-## 📌 Scripts
-
-### 🔍 `find_date_variants.sh`
-
-Searches for files with names that include common variations of a specific date.
-
-#### ✅ Features:
-
-- Accepts `YYYY-MM-DD` or `YYYYMMDD` format
-- Matches different date formats (e.g., `16-11-2021`, `Nov16_2021`, etc.)
-- Optionally specify the search path, or defaults to the script’s directory
-
-#### 📦 Usage:
+### Discovery Tool
+Use our built-in discovery tool to find and explore scripts:
 
 ```bash
-./find_date_variants.sh 2021-11-16
-./find_date_variants.sh /mnt/user/ 2021-11-16
-./find_date_variants.sh 20211116
+# List all available scripts
+./tools/discover.sh list
+
+# Show script categories
+./tools/discover.sh categories
+
+# Search for specific functionality
+./tools/discover.sh search ubuntu
+
+# Get detailed info about a script
+./tools/discover.sh info MakeUbuntuUSB.ps1
+
+# Run a script with safety prompts
+./tools/discover.sh run script_name.sh
 ```
 
-------
+### Direct Usage
+Navigate to the script's category directory and run:
 
-## 🧩 More Coming Soon
+```bash
+# For bash scripts
+chmod +x script_name.sh
+./script_name.sh [arguments]
 
-New scripts will be added regularly for:
+# For PowerShell scripts (Windows)
+powershell -ep Bypass -f script_name.ps1
 
-- File organization
-- Backup and sync tasks
-- Data processing and cleanup
-- Automation of tedious CLI tasks
+# For Python scripts
+python3 script_name.py [arguments]
+```
 
-------
+---
+
+## 📂 Script Categories
+
+### 🔧 System Administration
+**Location:** `scripts/system-admin/`
+- **MakeUbuntuUSB.ps1** - Creates bootable Ubuntu USB drives on Windows (designed for non-technical users)
+
+### 📄 Document Processing  
+**Location:** `scripts/document-processing/`
+- **prepare_arxiv.sh** - Automates LaTeX paper preparation for arXiv submission
+
+### 📁 File Utilities
+**Location:** `scripts/file-utilities/`
+- **find_date_variants.sh** - Searches for files with date patterns in multiple formats
+
+### 🔍 Data Processing
+**Location:** `scripts/data-processing/`
+- **remove_geo_garmin_json.py** - Strips geolocation data from JSON files for privacy
+
+---
+
+## 🎯 Platform Support
+
+| Platform | Scripts Available | Usage |
+|----------|------------------|-------|
+| 🐧 **Linux/macOS** | Bash scripts (`.sh`) | `./script.sh` |
+| 🪟 **Windows** | PowerShell (`.ps1`) | `powershell -ep Bypass -f script.ps1` |
+| 🐍 **Cross-platform** | Python (`.py`) | `python3 script.py` |
+
+---
+
+## 📖 Documentation
+
+Each category has detailed documentation:
+- **Category README** - Overview and usage for all scripts in that category
+- **Script Headers** - Usage examples and requirements in each script
+- **Templates** - Standardized templates for new scripts in `scripts/templates/`
+
+---
+
+## 🔧 Development
+
+### Adding New Scripts
+
+1. **Choose Category** - Place in appropriate `scripts/[category]/` directory
+2. **Use Template** - Start with a template from `scripts/templates/`
+3. **Document** - Add entry to category README using `SCRIPT_TEMPLATE.md`
+4. **Test** - Verify across target platforms
+
+### Organization Principles
+
+- **Self-contained** - Minimal dependencies, clear error messages
+- **Safety-first** - Destructive operations require explicit confirmation
+- **User-friendly** - Designed for both technical and non-technical users
+- **Cross-platform** - Support multiple platforms where possible
+
+---
 
 ## 🤝 Contributing
 
-Have a useful script? PRs are welcome!
+1. Fork the repository
+2. Create a feature branch
+3. Add your script to the appropriate category
+4. Update documentation
+5. Submit a pull request
 
-------
+**Script Requirements:**
+- Follow existing code style and safety patterns
+- Include comprehensive error handling
+- Add usage examples and documentation
+- Test on target platforms
+
+---
 
 ## 🧠 License
 
-MIT — do whatever you want, but attribution is appreciated.
+MIT — Use freely, attribution appreciated.
+
+---
+
+## 🔍 Need Help?
+
+- Use `./tools/discover.sh` to explore available scripts
+- Check category README files for detailed documentation
+- Look at script headers for usage examples
+- Refer to `SCRIPT_TEMPLATE.md` for documentation standards
