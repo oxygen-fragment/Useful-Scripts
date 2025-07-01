@@ -61,6 +61,10 @@ python3 script_name.py [arguments]
 **Location:** `scripts/data-processing/`
 - **remove_geo_garmin_json.py** - Strips geolocation data from JSON files for privacy
 
+### 📡 Communication
+**Location:** `communication/`
+- **telegram_client.py** - Reusable Telegram bot client with robust error handling and notification templates
+
 ---
 
 ## 🎯 Platform Support
