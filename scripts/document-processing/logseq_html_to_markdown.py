@@ -1,4 +1,5 @@
 import re
+import argparse
 from bs4 import BeautifulSoup
 from datetime import datetime
 import html
@@ -76,11 +77,9 @@ def process_block(block):
                 ref_text = element.get_text(strip=True)
                 content_parts.append(f"[[{ref_text}]]")
             elif 'tag' in element.get('class', []):
-                # Tag reference
                 tag_text = element.get_text(strip=True)
                 content_parts.append(tag_text)
             elif 'external-link' in element.get('class', []):
-                # External link
                 href = element.get('href', '')
                 link_text = element.get_text(strip=True)
                 content_parts.append(f"[{link_text}]({href})")
@@ -89,7 +88,7 @@ def process_block(block):
     
     # Clean up and join content
     content = ' '.join(content_parts)
-    content = re.sub(r'\s+', ' ', content)  # Normalize whitespace
+    content = re.sub(r'\s+', ' ', content)
     content = content.replace(' \n ', '\n')
     
     # Add bullet point
@@ -109,7 +108,6 @@ def process_block(block):
             for child in child_blocks:
                 child_content = process_block(child)
                 if child_content:
-                    # Indent child blocks
                     indented = '\n'.join(['  ' + line for line in child_content.split('\n')])
                     output.append(indented)
     
@@ -137,7 +135,6 @@ def clean_markdown(markdown_text):
     
     return '\n'.join(lines)
 
-# Main function to use
 def convert_logseq_html_to_markdown(html_file_path):
     """
     Convert Logseq HTML export to Markdown
@@ -156,37 +153,29 @@ def convert_logseq_html_to_markdown(html_file_path):
     
     return markdown
 
-# Example usage
+
 if __name__ == "__main__":
-    # Example: Process the provided HTML snippet
-    html_snippet = """
-    <div class="custom-query-page-result color-level">
-        <div class="content">
-            <div class="flex-1 flex-row foldable-title">
-                <a class="page-ref">Jul 12th, 2025</a>
-            </div>
-        </div>
-        <div class="ls-block" haschild="true">
-            <div class="block-content-inner">
-                <a class="priority">[#A]</a>
-                <span>12:31 <b>add this to [[Resolution Slider]]!</b></span>
-                <div class="is-paragraph">
-                    <a class="tag">#idea</a>
-                    <a class="tag">#development</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    """
-    
-    # For testing with the snippet
-    soup = BeautifulSoup(html_snippet, 'html.parser')
-    results = extract_logseq_data(html_snippet)
-    print(results)
-    
-    # For actual use:
-    # markdown_output = convert_logseq_html_to_markdown('path/to/your/logseq_export.html')
-    # 
-    # # Save to file
-    # with open('output.md', 'w', encoding='utf-8') as f:
-    #     f.write(markdown_output)
+    parser = argparse.ArgumentParser(
+        description="Convert Logseq HTML export to Markdown format."
+    )
+    parser.add_argument(
+        "input_html",
+        help="Path to the Logseq HTML file to convert."
+    )
+    parser.add_argument(
+        "-o", "--output",
+        help="Optional path to save the generated Markdown file. If omitted, output is printed to stdout.",
+        default=None
+    )
+    args = parser.parse_args()
+
+    result_md = convert_logseq_html_to_markdown(args.input_html)
+    if args.output:
+        try:
+            with open(args.output, 'w', encoding='utf-8') as out_f:
+                out_f.write(result_md)
+            print(f"Markdown successfully written to {args.output}")
+        except IOError as e:
+            print(f"Error writing to output file: {e}")
+    else:
+        print(result_md)

@@ -51,6 +51,7 @@ python3 script_name.py [arguments]
 
 ### 📄 Document Processing  
 **Location:** `scripts/document-processing/`
+- **logseq_html_to_markdown.py** - Converts Logseq HTML (e.g. `CTRL` + `SHIFT` + `i`) to Markdown
 - **prepare_arxiv.sh** - Automates LaTeX paper preparation for arXiv submission
 
 ### 📁 File Utilities
