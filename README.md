@@ -62,9 +62,18 @@ python3 script_name.py [arguments]
 **Location:** `scripts/data-processing/`
 - **remove_geo_garmin_json.py** - Strips geolocation data from JSON files for privacy
 
+### 💻 Development
+**Location:** `scripts/development/`
+- **init-pipeline.sh** - Creates a multi-agent SLICE workflow system for Claude Code with structured task management
+
 ### 📡 Communication
 **Location:** `communication/`
 - **telegram_client.py** - Reusable Telegram bot client with robust error handling and notification templates
+
+### 🔧 Tools
+**Location:** `tools/`
+- **discover.sh** - Built-in discovery tool to find, explore, and run scripts
+- **git-multi-push-system/** - Complete git repository management system for pushing to multiple hosting services (GitHub, GitLab, Codeberg, etc.)
 
 ---
 

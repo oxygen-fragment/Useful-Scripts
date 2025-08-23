@@ -1,0 +1,40 @@
+# GitHub to GitLab Migration Preset
+# Common scenario: Moving from GitHub to GitLab as primary
+
+name: "GitHub to GitLab Migration"
+description: "Migrate from GitHub (old) to GitLab (new primary) with GitHub as backup"
+
+# User configuration (override in your main config)
+user:
+  username: "your-username"
+  email: "your-email@example.com"
+
+# Multi-push setup
+multi_push:
+  primary_service: "gitlab"          # GitLab becomes the primary
+  push_services: ["gitlab", "github"] # Push to both
+  
+  service_priorities:
+    gitlab: 1                        # Primary
+    github: 2                        # Backup
+
+# Service configurations
+services:
+  gitlab:
+    auth_method: "token"
+  github:
+    auth_method: "token"
+
+# Migration specific settings
+migration:
+  create_backups: true
+  dry_run_by_default: true          # Safety first for migrations
+  batch_size: 5                     # Conservative batch size
+  
+# Repository handling
+repositories:
+  # Common GitHub project locations
+  scan_paths:
+    - "~/github-projects"
+    - "~/Code"
+    - "~/Projects"

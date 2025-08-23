@@ -59,7 +59,7 @@ chmod +x prepare_arxiv.sh
 - Symptom: Bibliography not appearing
 - Solution: Ensure .bib file has same name as main .tex file
 
-## Logseq HTML to Markdown converter
+## logseq_html_to_markdown.py
 ### On Linux
 1. Open Logseq 
 2. Press `CTRL` + `SHIFT` + `i` (opens 'inspect' window)
@@ -69,8 +69,12 @@ chmod +x prepare_arxiv.sh
 then:
 
 ```python
-python convert_logseq.py path/to/input.html -o path/to/output.md
+python logseq_html_to_markdown path/to/input.html -o path/to/output.md
 ```
+
+### NOTE:
+- **Tested on the entire `<body>`** (i.e. hover mouse over `<body>` element -> right click -> `Copy` -> `Copy element` -> save as HTML file)
+- **I'm sure it won't be perfect for all use-cases** and you're welcome to contact me or create an issue.
 
 ---
 *Last updated: 2024-12-30*

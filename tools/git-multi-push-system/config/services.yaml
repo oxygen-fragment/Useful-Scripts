@@ -1,0 +1,131 @@
+# Git Multi-Push System - Service Definitions
+# This file defines the configuration for various git hosting services
+# Users can extend this file or override these definitions in their config
+
+services:
+  # Popular hosted services
+  github:
+    name: "GitHub"
+    domain: "github.com"
+    url_template: "https://github.com/{username}/{repo}.git"
+    auth_url_template: "https://{username}:{token}@github.com/{username}/{repo}.git"
+    ssh_url_template: "git@github.com:{username}/{repo}.git"
+    api_base: "https://api.github.com"
+    auth_methods: ["token", "ssh"]
+    token_env_var: "GITHUB_TOKEN"
+    description: "GitHub - Microsoft's git hosting platform"
+    
+  gitlab:
+    name: "GitLab"
+    domain: "gitlab.com"
+    url_template: "https://gitlab.com/{username}/{repo}.git"
+    auth_url_template: "https://{username}:{token}@gitlab.com/{username}/{repo}.git"
+    ssh_url_template: "git@gitlab.com:{username}/{repo}.git"
+    api_base: "https://gitlab.com/api/v4"
+    auth_methods: ["token", "ssh"]
+    token_env_var: "GITLAB_TOKEN"
+    description: "GitLab - Complete DevOps platform"
+    
+  codeberg:
+    name: "Codeberg"
+    domain: "codeberg.org"
+    url_template: "https://codeberg.org/{username}/{repo}.git"
+    auth_url_template: "https://{username}:{token}@codeberg.org/{username}/{repo}.git"
+    ssh_url_template: "git@codeberg.org:{username}/{repo}.git"
+    api_base: "https://codeberg.org/api/v1"
+    auth_methods: ["token", "ssh", "basic"]
+    token_env_var: "CODEBERG_TOKEN"
+    description: "Codeberg - FOSS-focused hosting based in EU"
+    
+  bitbucket:
+    name: "Bitbucket"
+    domain: "bitbucket.org"
+    url_template: "https://bitbucket.org/{username}/{repo}.git"
+    auth_url_template: "https://{username}:{token}@bitbucket.org/{username}/{repo}.git"
+    ssh_url_template: "git@bitbucket.org:{username}/{repo}.git"
+    api_base: "https://api.bitbucket.org/2.0"
+    auth_methods: ["token", "ssh", "app_password"]
+    token_env_var: "BITBUCKET_TOKEN"
+    description: "Bitbucket - Atlassian's git hosting"
+    
+  # Keybase (special case - encrypted distributed)
+  keybase:
+    name: "Keybase"
+    domain: "keybase.io"
+    url_template: "keybase://private/{username}/{repo}"
+    auth_url_template: "keybase://private/{username}/{repo}"
+    ssh_url_template: "keybase://private/{username}/{repo}"
+    auth_methods: ["keybase_client"]
+    description: "Keybase - Encrypted distributed git hosting"
+    special_handling: true
+    
+  # Self-hosted solutions (templates)
+  gitea:
+    name: "Gitea"
+    domain: "{custom_domain}"
+    url_template: "https://{custom_domain}/{username}/{repo}.git"
+    auth_url_template: "https://{username}:{token}@{custom_domain}/{username}/{repo}.git"
+    ssh_url_template: "git@{custom_domain}:{username}/{repo}.git"
+    api_base: "https://{custom_domain}/api/v1"
+    auth_methods: ["token", "ssh", "basic"]
+    token_env_var: "GITEA_TOKEN"
+    description: "Gitea - Self-hosted git service"
+    requires_custom_domain: true
+    
+  forgejo:
+    name: "Forgejo"
+    domain: "{custom_domain}"
+    url_template: "https://{custom_domain}/{username}/{repo}.git"
+    auth_url_template: "https://{username}:{token}@{custom_domain}/{username}/{repo}.git"
+    ssh_url_template: "git@{custom_domain}:{username}/{repo}.git"
+    api_base: "https://{custom_domain}/api/v1"
+    auth_methods: ["token", "ssh", "basic"]
+    token_env_var: "FORGEJO_TOKEN"
+    description: "Forgejo - Community fork of Gitea"
+    requires_custom_domain: true
+    
+  gitlab_self_hosted:
+    name: "GitLab Self-Hosted"
+    domain: "{custom_domain}"
+    url_template: "https://{custom_domain}/{username}/{repo}.git"
+    auth_url_template: "https://{username}:{token}@{custom_domain}/{username}/{repo}.git"
+    ssh_url_template: "git@{custom_domain}:{username}/{repo}.git"
+    api_base: "https://{custom_domain}/api/v4"
+    auth_methods: ["token", "ssh"]
+    token_env_var: "GITLAB_SELF_HOSTED_TOKEN"
+    description: "GitLab - Self-hosted instance"
+    requires_custom_domain: true
+    
+  github_enterprise:
+    name: "GitHub Enterprise"
+    domain: "{custom_domain}"
+    url_template: "https://{custom_domain}/{username}/{repo}.git"
+    auth_url_template: "https://{username}:{token}@{custom_domain}/{username}/{repo}.git"
+    ssh_url_template: "git@{custom_domain}:{username}/{repo}.git"
+    api_base: "https://{custom_domain}/api/v3"
+    auth_methods: ["token", "ssh"]
+    token_env_var: "GITHUB_ENTERPRISE_TOKEN"
+    description: "GitHub Enterprise - Self-hosted GitHub"
+    requires_custom_domain: true
+
+# Authentication method descriptions
+auth_methods:
+  token:
+    description: "Personal Access Token authentication"
+    setup_instructions: "Generate a personal access token in your service settings"
+    
+  ssh:
+    description: "SSH key authentication"
+    setup_instructions: "Add your SSH public key to your service account"
+    
+  basic:
+    description: "Username and password authentication"
+    setup_instructions: "Use your regular login credentials"
+    
+  app_password:
+    description: "App-specific password (Bitbucket)"
+    setup_instructions: "Generate an app password in Bitbucket settings"
+    
+  keybase_client:
+    description: "Keybase client authentication"
+    setup_instructions: "Install and login to Keybase client"

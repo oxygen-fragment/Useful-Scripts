@@ -1,0 +1,63 @@
+# Git Multi-Push System - 2025 Migration Configuration
+
+# User configuration
+user:
+  username: "thirteenth_mang"
+  email: "your-email@example.com"
+  full_name: "Braeden Mitchell"
+
+# Multi-push configuration
+multi_push:
+  primary_service: "gitlab"
+  push_services: ["gitlab", "keybase", "codeberg"]
+  
+  service_priorities:
+    gitlab: 1
+    keybase: 2
+    codeberg: 3
+
+# Service-specific configurations
+services:
+  gitlab:
+    username: "thirteenth_mang"
+    auth_method: "token"
+    
+  keybase:
+    username: "thirteenth_mang"
+    auth_method: "keybase"
+    
+  codeberg:
+    username: "thirteenth_mang"
+    auth_method: "token"
+
+# Repository management
+repositories:
+  scan_paths:
+    - "~/Gits"
+  
+  exclude_patterns:
+    - "*/.git"
+    - "*/node_modules"
+    - "*/venv"
+    - "*/.*"
+
+# Migration settings
+migration:
+  create_backups: true
+  dry_run_by_default: false
+  batch_size: 5
+  delay_between_repos: 2
+  stop_on_first_error: false
+  max_retries: 3
+
+# Logging and output
+logging:
+  level: "INFO"
+  format: "detailed"
+  file: null
+
+# Advanced settings
+advanced:
+  git_timeout: 30
+  test_connectivity: true
+  connectivity_timeout: 10

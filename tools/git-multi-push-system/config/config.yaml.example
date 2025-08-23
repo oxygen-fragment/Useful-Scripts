@@ -1,0 +1,99 @@
+# Git Multi-Push System - Configuration Example
+# Copy this file to config.yaml and customize for your needs
+
+# User configuration
+user:
+  username: "your-username"          # Your username on git services
+  email: "your-email@example.com"    # Your git email
+  full_name: "Your Full Name"        # Your full name for git commits
+
+# Multi-push configuration
+multi_push:
+  primary_service: "gitlab"           # Primary service for fetch operations
+  push_services: ["gitlab", "github", "codeberg"]  # Services to push to
+  
+  # Service priorities (1 = highest priority, for conflict resolution)
+  service_priorities:
+    gitlab: 1
+    github: 2
+    codeberg: 3
+
+# Service-specific configurations
+# Override default service definitions here
+services:
+  gitlab:
+    username: "your-gitlab-username"  # If different from global username
+    custom_domain: null               # For self-hosted: "gitlab.yourcompany.com"
+    auth_method: "token"              # token, ssh, basic
+    
+  github:
+    username: "your-github-username"  # If different from global username
+    auth_method: "token"              # token, ssh
+    
+  codeberg:
+    username: "your-codeberg-username"
+    auth_method: "token"              # token, ssh, basic
+    
+  # Example: Self-hosted Gitea instance
+  # gitea:
+  #   username: "your-username"
+  #   custom_domain: "git.yourcompany.com"
+  #   auth_method: "token"
+
+# Repository management
+repositories:
+  # Directories to scan for repositories
+  scan_paths:
+    - "~/Code"
+    - "~/Projects"
+    - "~/Gits"
+  
+  # Patterns to exclude from scans
+  exclude_patterns:
+    - "*/.git"
+    - "*/node_modules"
+    - "*/venv"
+    - "*/.*"
+  
+  # Repository-specific overrides
+  overrides:
+    # Example: Different services for specific repos
+    # sensitive-project:
+    #   push_services: ["gitlab"]  # Only push to GitLab
+    # open-source-project:
+    #   push_services: ["github", "codeberg"]  # Skip GitLab
+
+# Migration settings
+migration:
+  # Safety settings
+  create_backups: true              # Create .git/config.backup before changes
+  dry_run_by_default: false        # Always do dry run unless --force
+  
+  # Batch processing
+  batch_size: 10                    # Process N repositories at a time
+  delay_between_repos: 1            # Seconds to wait between repos
+  
+  # Error handling
+  stop_on_first_error: false       # Continue processing other repos on error
+  max_retries: 3                    # Retry failed operations N times
+
+# Logging and output
+logging:
+  level: "INFO"                     # DEBUG, INFO, WARNING, ERROR
+  format: "detailed"                # simple, detailed, json
+  file: null                        # Log to file: "git-multi-push.log"
+
+# Advanced settings
+advanced:
+  # Git command timeout (seconds)
+  git_timeout: 30
+  
+  # Connectivity testing
+  test_connectivity: true           # Test remote connections after setup
+  connectivity_timeout: 10          # Timeout for connectivity tests
+  
+  # Custom git configurations
+  git_config:
+    # Example: Set push.default to simple for all repos
+    # "push.default": "simple"
+    # "pull.rebase": "true"

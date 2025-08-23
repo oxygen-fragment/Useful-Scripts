@@ -1,0 +1,80 @@
+# Enterprise Backup Preset
+# Corporate setup with enterprise primary + external backups
+
+name: "Enterprise Backup Setup"
+description: "Enterprise GitHub/GitLab primary with external service backups"
+
+# User configuration (override in your main config)  
+user:
+  username: "your-username"
+  email: "your-work-email@company.com"
+
+# Multi-push setup for enterprise + backup
+multi_push:
+  primary_service: "github_enterprise"  # Enterprise as primary
+  push_services: ["github_enterprise", "gitlab", "codeberg"]
+  
+  service_priorities:
+    github_enterprise: 1             # Corporate primary
+    gitlab: 2                        # External backup  
+    codeberg: 3                      # FOSS backup
+
+# Service configurations with enterprise customization
+services:
+  github_enterprise:
+    custom_domain: "github.yourcompany.com"  # Your enterprise domain
+    auth_method: "token"
+    description: "Corporate GitHub Enterprise instance"
+    
+  gitlab:
+    auth_method: "token"
+    description: "External GitLab.com backup"
+    
+  codeberg:
+    auth_method: "token"
+    description: "External FOSS backup"
+
+# Enterprise-focused migration settings
+migration:
+  create_backups: true
+  dry_run_by_default: true          # Extra safety for corporate repos
+  batch_size: 3                     # Conservative for enterprise
+  delay_between_repos: 3            # Extra delays for corporate networks
+  stop_on_first_error: true        # Don't risk corporate data
+
+# Repository management for typical enterprise structure
+repositories:
+  scan_paths:
+    - "~/work"
+    - "~/enterprise-projects"
+    - "~/company-repos"
+  
+  # Enterprise-specific exclusions
+  exclude_patterns:
+    - "*/confidential-*"
+    - "*/internal-*"
+    - "*/.git"
+    - "*/node_modules"
+    - "*/vendor"
+  
+  # Repository-specific rules for sensitive projects
+  overrides:
+    # Example: Keep highly sensitive repos only on enterprise
+    # top-secret-project:
+    #   push_services: ["github_enterprise"]
+    # 
+    # # Public projects can go to external services
+    # open-source-tool:
+    #   push_services: ["github_enterprise", "github", "codeberg"]
+
+# Enhanced logging for corporate compliance
+logging:
+  level: "INFO"
+  format: "detailed"
+  file: "enterprise-git-multi-push.log"  # Log everything for auditing
+
+# Enterprise network considerations  
+advanced:
+  test_connectivity: true
+  connectivity_timeout: 30          # Longer for corporate networks/firewalls
+  git_timeout: 60                   # Enterprise networks can be slower

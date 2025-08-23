@@ -1,0 +1,68 @@
+# Triple Redundancy Preset
+# Maximum safety with three different hosting services
+
+name: "Triple Redundancy Setup"
+description: "GitLab (primary) + GitHub + Codeberg for maximum redundancy and platform independence"
+
+# User configuration (override in your main config)
+user:
+  username: "your-username"
+  email: "your-email@example.com"
+
+# Multi-push setup for triple redundancy
+multi_push:
+  primary_service: "gitlab"          # GitLab as primary for fetch
+  push_services: ["gitlab", "github", "codeberg"]  # Push to all three
+  
+  service_priorities:
+    gitlab: 1                        # Primary - full features, CI/CD
+    github: 2                        # Secondary - community, visibility  
+    codeberg: 3                      # Backup - FOSS alternative
+
+# Service configurations
+services:
+  gitlab:
+    auth_method: "token"
+    description: "Primary service with full CI/CD capabilities"
+    
+  github:
+    auth_method: "token" 
+    description: "Community visibility and collaboration"
+    
+  codeberg:
+    auth_method: "token"
+    description: "FOSS-focused backup hosted in EU"
+
+# Conservative migration settings for safety
+migration:
+  create_backups: true
+  dry_run_by_default: false
+  batch_size: 5                     # Small batches for safety
+  delay_between_repos: 2            # Extra time between repos
+  stop_on_first_error: true        # Stop if anything goes wrong
+  max_retries: 2
+
+# Repository management
+repositories:
+  scan_paths:
+    - "~/Code"
+    - "~/Projects"
+    - "~/Repositories"
+  
+  # Exclude sensitive or large repos by default
+  exclude_patterns:
+    - "*/private-*"
+    - "*/.*-backup"
+    - "*/node_modules"
+    - "*/.git"
+
+# Enhanced logging for monitoring triple-push status
+logging:
+  level: "INFO"
+  format: "detailed"
+  
+# Advanced settings optimized for multiple services
+advanced:
+  test_connectivity: true           # Always test all three services
+  connectivity_timeout: 15          # Longer timeout for multiple services
+  git_timeout: 45                   # Longer timeout for multiple pushes
